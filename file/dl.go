@@ -4,12 +4,11 @@ package file
 import (
 	"errors"
 	"io"
-	"net/http"
 	"os"
 	"time"
 
+	"github.com/FloatTech/floatbox/web"
 	"github.com/RomiChan/syncx"
-	trshttp "github.com/fumiama/terasu/http"
 )
 
 type dlcache syncx.Map[string, error]
@@ -50,6 +49,7 @@ var (
 	errDlStatusDoing   = errors.New("downloading")
 	errDlStatusTimeout = errors.New("download timeout")
 )
+var defaultClient = web.NewDefaultClient()
 
 // DownloadTo 下载到路径
 func DownloadTo(url, file string) error {
@@ -57,10 +57,7 @@ func DownloadTo(url, file string) error {
 	if err != errDlContinue {
 		return err
 	}
-	resp, err := trshttp.Get(url)
-	if err != nil {
-		resp, err = http.Get(url)
-	}
+	resp, err := defaultClient.Get(url)
 	if err == nil {
 		var f *os.File
 		f, err = os.Create(file)
